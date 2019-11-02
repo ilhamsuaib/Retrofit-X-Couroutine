@@ -3,28 +3,28 @@ package dev.ilhamsuaib.app.home
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import dev.ilhamsuaib.app.R
-import dev.ilhamsuaib.app.logD
-import dev.ilhamsuaib.app.toJson
+import dev.ilhamsuaib.app.network.Resource
+import dev.ilhamsuaib.app.network.Status
 import kotlinx.android.synthetic.main.activity_main.*
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
 
-    private val posts = mutableListOf<Post>()
+    private val mViewModel: PostViewModel by viewModel()
+
+    private val posts = mutableListOf<PostUIModel>()
     private val postAdapter by lazy { PostAdapter(posts, this::onPostClick) }
 
-    @Suppress("UNCHECKED_CAST")
-    private val mViewModel: PostViewModel by lazy {
-        ViewModelProviders.of(this, object : ViewModelProvider.Factory {
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-                return PostViewModel() as T
-            }
-        })[PostViewModel::class.java]
+    private val observer = Observer<Resource<List<PostUIModel>>> {
+        when (it.status) {
+            Status.SUCCESS -> showPosts(it.data.orEmpty())
+            Status.ERROR -> showError(it.msg)
+            Status.LOADING -> showLoading()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,14 +32,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         setupView()
-
-        mViewModel.posts.observe(this, Observer { posts ->
-            logD("this.posts size : ${this.posts.size}")
-            logD("posts : ${posts.toJson}")
-            this.posts.addAll(posts)
-            postAdapter.notifyDataSetChanged()
-        })
-        this.posts.add(Post(1, "Test", "Test body"))
+        mViewModel.posts.observe(this, observer)
     }
 
     private fun setupView() {
@@ -49,7 +42,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun onPostClick(post: Post) {
+    private fun onPostClick(post: PostUIModel) {
         Toast.makeText(this, post.title, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showPosts(posts: List<PostUIModel>) {
+        progress.isVisible = false
+        this.posts.clear()
+        this.posts.addAll(posts)
+        postAdapter.notifyDataSetChanged()
+    }
+
+    private fun showLoading() {
+        progress.isVisible = true
+    }
+
+    private fun showError(msg: String?) {
+        progress.isVisible = false
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
     }
 }

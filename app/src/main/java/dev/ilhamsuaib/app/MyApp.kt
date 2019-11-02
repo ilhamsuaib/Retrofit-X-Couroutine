@@ -1,8 +1,13 @@
 package dev.ilhamsuaib.app
 
 import android.app.Application
-import dev.ilhamsuaib.app.network.ApiService
-import dev.ilhamsuaib.app.network.NetworkConfig
+import dev.ilhamsuaib.app.di.networkModule
+import dev.ilhamsuaib.app.di.repositoryModule
+import dev.ilhamsuaib.app.di.viewModelModule
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.core.context.startKoin
+import org.koin.core.logger.Level
 
 /**
  * Created by @ilhamsuaib on 2019-10-30.
@@ -11,13 +16,13 @@ import dev.ilhamsuaib.app.network.NetworkConfig
 
 class MyApp : Application() {
 
-    companion object {
-        lateinit var service: ApiService
-    }
-
     override fun onCreate() {
         super.onCreate()
 
-        service = NetworkConfig.createService()
+        startKoin {
+            androidContext(this@MyApp)
+            androidLogger(Level.ERROR)
+            modules(listOf(networkModule, repositoryModule, viewModelModule))
+        }
     }
 }

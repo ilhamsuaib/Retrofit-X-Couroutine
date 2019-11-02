@@ -1,23 +1,34 @@
 package dev.ilhamsuaib.app.data
 
-import dev.ilhamsuaib.app.MyApp
-import dev.ilhamsuaib.app.home.Post
+import dev.ilhamsuaib.app.home.PostUIModel
+import dev.ilhamsuaib.app.network.ApiService
+import dev.ilhamsuaib.app.network.Resource
+import dev.ilhamsuaib.app.network.ResponseHandler
+import retrofit2.HttpException
 
 /**
  * Created by @ilhamsuaib on 2019-10-30.
  * github.com/ilhamsuaib
  */
 
-class PostRepository {
+open class PostRepository(
+    private val service: ApiService,
+    private val responseHandler: ResponseHandler
+) {
 
-    private val service = MyApp.service
-
-    suspend fun getPosts() = service.getPosts()
-        .map {
-            Post(
-                id = it.id,
-                title = it.title,
-                body = it.body
-            )
+    suspend fun getPosts(): Resource<List<PostUIModel>> {
+        return try {
+            val response: List<PostUIModel> = service.getPosts()
+                .map {
+                    PostUIModel(
+                        id = it.id,
+                        title = it.title,
+                        body = it.body
+                    )
+                }
+            responseHandler.onSuccess(response)
+        } catch (e: HttpException) {
+            responseHandler.onError(e.code())
         }
+    }
 }

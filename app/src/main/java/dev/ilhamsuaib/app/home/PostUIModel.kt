@@ -5,7 +5,7 @@ package dev.ilhamsuaib.app.home
  * github.com/ilhamsuaib
  */
 
-data class Post(
+data class PostUIModel(
     val id: Int,
     val title: String,
     val body: String

@@ -13,8 +13,8 @@ import kotlinx.android.synthetic.main.item_post.view.*
  */
 
 class PostAdapter(
-    private val posts: List<Post>,
-    private val onClick: (Post) -> Unit
+    private val posts: List<PostUIModel>,
+    private val onClick: (PostUIModel) -> Unit
 ) : RecyclerView.Adapter<PostAdapter.PostHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostHolder {
@@ -35,7 +35,7 @@ class PostAdapter(
 
     inner class PostHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        fun bind(post: Post) = itemView.apply {
+        fun bind(post: PostUIModel) = itemView.apply {
             val title = "${adapterPosition.plus(1)}. ${post.title}"
             tvTitle.text = title
             tvBody.text = post.body

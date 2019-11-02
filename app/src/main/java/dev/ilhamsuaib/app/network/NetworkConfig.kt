@@ -1,6 +1,7 @@
 package dev.ilhamsuaib.app.network
 
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
@@ -12,20 +13,23 @@ import java.util.concurrent.TimeUnit
 
 object NetworkConfig {
 
-    fun createService(): ApiService = getRetrofit().create(ApiService::class.java)
+    fun createService(retrofit: Retrofit): ApiService = retrofit.create(ApiService::class.java)
 
-    private fun getRetrofit(): Retrofit {
+    fun provideRetrofit(client: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .baseUrl("https://jsonplaceholder.typicode.com/")
             .addConverterFactory(GsonConverterFactory.create())
-            .client(getHttpClient())
+            .client(client)
             .build()
     }
 
-    private fun getHttpClient(): OkHttpClient {
+    fun provideHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
             .readTimeout(30L, TimeUnit.SECONDS)
             .connectTimeout(30L, TimeUnit.SECONDS)
+            .addInterceptor(HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            })
             .build()
     }
 }
