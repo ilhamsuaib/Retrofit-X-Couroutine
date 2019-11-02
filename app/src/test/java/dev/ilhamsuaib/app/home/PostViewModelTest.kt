@@ -15,6 +15,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import retrofit2.HttpException
 
 @ExperimentalCoroutinesApi
 @RunWith(JUnit4::class)
@@ -23,7 +24,7 @@ class PostViewModelTest {
     lateinit var mViewModel: PostViewModel
     lateinit var postRepository: PostRepository
     lateinit var postObserver: Observer<Resource<List<PostUIModel>>>
-    private val posts = Resource.success(emptyList<PostUIModel>())
+    private val onSuccess = Resource.success<List<PostUIModel>>(emptyList())
 
     @Rule
     @JvmField
@@ -38,18 +39,19 @@ class PostViewModelTest {
         Dispatchers.setMain(mainThreadSurrogate)
         postRepository = mock()
         runBlocking {
-            whenever(postRepository.getPosts()).thenReturn(posts)
+            whenever(postRepository.getPosts()).thenReturn(onSuccess)
+            whenever(postRepository.getPosts()).thenReturn(onSuccess)
         }
         mViewModel = PostViewModel(postRepository)
         postObserver = mock()
     }
 
     @Test
-    fun `when get post is success`() = runBlocking {
+    fun `when get post is success, then update state`() = runBlocking {
         mViewModel.posts.observeForever(postObserver)
         delay(100L)
         verify(postRepository).getPosts()
         verify(postObserver, timeout(30L)).onChanged(Resource.loading())
-        verify(postObserver, timeout(30L)).onChanged(posts)
+        verify(postObserver, timeout(30L)).onChanged(onSuccess)
     }
 }

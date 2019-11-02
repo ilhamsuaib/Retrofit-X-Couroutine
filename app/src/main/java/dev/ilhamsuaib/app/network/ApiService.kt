@@ -10,6 +10,6 @@ import retrofit2.http.GET
 
 interface ApiService {
 
-    @GET("postss")
+    @GET("posts")
     suspend fun getPosts(): List<PostModel>
 }
