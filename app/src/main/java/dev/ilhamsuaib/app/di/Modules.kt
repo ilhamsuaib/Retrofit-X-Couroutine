@@ -1,9 +1,10 @@
 package dev.ilhamsuaib.app.di
 
 import dev.ilhamsuaib.app.data.PostRepository
+import dev.ilhamsuaib.app.data.Preferences
 import dev.ilhamsuaib.app.home.PostViewModel
 import dev.ilhamsuaib.app.network.NetworkConfig
-import dev.ilhamsuaib.app.network.ResponseHandler
+import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -11,6 +12,11 @@ import org.koin.dsl.module
  * Created by @ilhamsuaib on 2019-11-02.
  * github.com/ilhamsuaib
  */
+
+val dataModule = module {
+
+    single { Preferences(androidContext()) }
+}
 
 val networkModule = module {
 
@@ -20,12 +26,11 @@ val networkModule = module {
 
     single { NetworkConfig.createService(get()) }
 
-    single { ResponseHandler() }
 }
 
 val repositoryModule = module {
 
-    single { PostRepository(get(), get()) }
+    single { PostRepository(get()) }
 }
 
 val viewModelModule = module {

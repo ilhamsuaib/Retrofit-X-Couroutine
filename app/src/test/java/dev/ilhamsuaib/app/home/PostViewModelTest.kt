@@ -7,7 +7,7 @@ import com.nhaarman.mockitokotlin2.timeout
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import dev.ilhamsuaib.app.data.PostRepository
-import dev.ilhamsuaib.app.network.Resource
+import dev.ilhamsuaib.app.network.Result
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.setMain
 import org.junit.Before
@@ -15,31 +15,28 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import retrofit2.HttpException
 
 @ExperimentalCoroutinesApi
+@ObsoleteCoroutinesApi
 @RunWith(JUnit4::class)
 class PostViewModelTest {
 
     lateinit var mViewModel: PostViewModel
     lateinit var postRepository: PostRepository
-    lateinit var postObserver: Observer<Resource<List<PostUIModel>>>
-    private val onSuccess = Resource.success<List<PostUIModel>>(emptyList())
+    lateinit var postObserver: Observer<Result<List<PostUIModel>>>
+    private val onSuccess = Result.success<List<PostUIModel>>(emptyList())
 
     @Rule
     @JvmField
     val instantExecutorRule = InstantTaskExecutorRule()
 
-    @ObsoleteCoroutinesApi
     private val mainThreadSurrogate = newSingleThreadContext("UI thread")
 
-    @ObsoleteCoroutinesApi
     @Before
     fun before() {
         Dispatchers.setMain(mainThreadSurrogate)
         postRepository = mock()
         runBlocking {
-            whenever(postRepository.getPosts()).thenReturn(onSuccess)
             whenever(postRepository.getPosts()).thenReturn(onSuccess)
         }
         mViewModel = PostViewModel(postRepository)
@@ -51,7 +48,7 @@ class PostViewModelTest {
         mViewModel.posts.observeForever(postObserver)
         delay(100L)
         verify(postRepository).getPosts()
-        verify(postObserver, timeout(30L)).onChanged(Resource.loading())
+        verify(postObserver, timeout(30L)).onChanged(Result.loading())
         verify(postObserver, timeout(30L)).onChanged(onSuccess)
     }
 }

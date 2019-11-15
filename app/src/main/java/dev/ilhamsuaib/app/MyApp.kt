@@ -1,6 +1,7 @@
 package dev.ilhamsuaib.app
 
 import android.app.Application
+import dev.ilhamsuaib.app.di.dataModule
 import dev.ilhamsuaib.app.di.networkModule
 import dev.ilhamsuaib.app.di.repositoryModule
 import dev.ilhamsuaib.app.di.viewModelModule
@@ -22,7 +23,7 @@ class MyApp : Application() {
         startKoin {
             androidContext(this@MyApp)
             androidLogger(Level.ERROR)
-            modules(listOf(networkModule, repositoryModule, viewModelModule))
+            modules(listOf(dataModule, networkModule, repositoryModule, viewModelModule))
         }
     }
 }

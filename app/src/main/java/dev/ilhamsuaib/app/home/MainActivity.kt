@@ -7,7 +7,7 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import dev.ilhamsuaib.app.R
-import dev.ilhamsuaib.app.network.Resource
+import dev.ilhamsuaib.app.network.Result
 import dev.ilhamsuaib.app.network.Status
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -19,7 +19,7 @@ class MainActivity : AppCompatActivity() {
     private val posts = mutableListOf<PostUIModel>()
     private val postAdapter by lazy { PostAdapter(posts, this::onPostClick) }
 
-    private val observer = Observer<Resource<List<PostUIModel>>> {
+    private val observer = Observer<Result<List<PostUIModel>>> {
         when (it.status) {
             Status.SUCCESS -> showPosts(it.data.orEmpty())
             Status.ERROR -> showError(it.msg)
@@ -59,6 +59,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun showError(msg: String?) {
         progress.isVisible = false
-        Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
 }
